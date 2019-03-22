@@ -18,6 +18,7 @@ import (
 	host "gx/ipfs/Qmd52WKRSwrBK5gUaJKawryZQ5by6UbNB8KVW2Zy6JtbyW/go-libp2p-host"
 	mh "gx/ipfs/QmerPMzPk1mJVowm8KgmoknWa4yCYvvugMPsgWmDNUvDLW/go-multihash"
 
+	"github.com/filecoin-project/go-filecoin/commands"
 	"github.com/filecoin-project/go-filecoin/types"
 )
 
@@ -45,32 +46,32 @@ func requireRandPeerID(t testing.TB) peer.ID { // nolint: deadcode
 	return p
 }
 
-var _ host.Host = &fakeHost{}
+var _ host.Host = &FakeHost{}
 
-type fakeHost struct {
+type FakeHost struct {
 	ConnectImpl func(context.Context, pstore.PeerInfo) error
 }
 
-func (fh *fakeHost) ID() peer.ID                  { panic("not implemented") }
-func (fh *fakeHost) Peerstore() pstore.Peerstore  { panic("not implemented") }
-func (fh *fakeHost) Addrs() []ma.Multiaddr        { panic("not implemented") }
-func (fh *fakeHost) Network() inet.Network        { panic("not implemented") }
-func (fh *fakeHost) Mux() *msmux.MultistreamMuxer { panic("not implemented") }
-func (fh *fakeHost) Connect(ctx context.Context, pi pstore.PeerInfo) error {
+func (fh *FakeHost) ID() peer.ID                  { panic("not implemented") }
+func (fh *FakeHost) Peerstore() pstore.Peerstore  { panic("not implemented") }
+func (fh *FakeHost) Addrs() []ma.Multiaddr        { panic("not implemented") }
+func (fh *FakeHost) Network() inet.Network        { panic("not implemented") }
+func (fh *FakeHost) Mux() *msmux.MultistreamMuxer { panic("not implemented") }
+func (fh *FakeHost) Connect(ctx context.Context, pi pstore.PeerInfo) error {
 	return fh.ConnectImpl(ctx, pi)
 }
-func (fh *fakeHost) SetStreamHandler(protocol.ID, inet.StreamHandler) {
+func (fh *FakeHost) SetStreamHandler(protocol.ID, inet.StreamHandler) {
 	panic("not implemented")
 }
-func (fh *fakeHost) SetStreamHandlerMatch(protocol.ID, func(string) bool, inet.StreamHandler) {
+func (fh *FakeHost) SetStreamHandlerMatch(protocol.ID, func(string) bool, inet.StreamHandler) {
 	panic("not implemented")
 }
-func (fh *fakeHost) RemoveStreamHandler(protocol.ID) { panic("not implemented") }
-func (fh *fakeHost) NewStream(context.Context, peer.ID, ...protocol.ID) (inet.Stream, error) {
-	panic("not implemented")
+func (fh *FakeHost) RemoveStreamHandler(protocol.ID) { panic("not implemented") }
+func (fh *FakeHost) NewStream(context.Context, peer.ID, ...protocol.ID) (inet.Stream, error) {
+	return commands.SilentWriter{}
 }
-func (fh *fakeHost) Close() error                       { panic("not implemented") }
-func (fh *fakeHost) ConnManager() ifconnmgr.ConnManager { panic("not implemented") }
+func (fh *FakeHost) Close() error                       { panic("not implemented") }
+func (fh *FakeHost) ConnManager() ifconnmgr.ConnManager { panic("not implemented") }
 
 var _ inet.Dialer = &fakeDialer{}
 

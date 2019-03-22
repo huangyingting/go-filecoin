@@ -15,10 +15,10 @@ import (
 	"gx/ipfs/QmPVkJMTeRC6iBByPWdrRkD3BE5UXsj5HPzb4kPqL186mS/testify/assert"
 )
 
-func nopConnect(context.Context, pstore.PeerInfo) error   { return nil }
-func panicConnect(context.Context, pstore.PeerInfo) error { panic("shouldn't be called") }
-func nopPeers() []peer.ID                                 { return []peer.ID{} }
-func panicPeers() []peer.ID                               { panic("shouldn't be called") }
+func NopConnect(_ context.Context, _ pstore.PeerInfo) error   { return nil }
+func panicConnect(_ context.Context, _ pstore.PeerInfo) error { panic("shouldn't be called") }
+func nopPeers() []peer.ID                                     { return []peer.ID{} }
+func panicPeers() []peer.ID                                   { panic("shouldn't be called") }
 
 type blankValidator struct{}
 
@@ -27,7 +27,7 @@ func (blankValidator) Select(_ string, _ [][]byte) (int, error) { return 0, nil 
 
 func TestBootstrapperStartAndStop(t *testing.T) {
 	assert := assert.New(t)
-	fakeHost := &fakeHost{ConnectImpl: nopConnect}
+	fakeHost := &FakeHost{ConnectImpl: NopConnect}
 	fakeDialer := &fakeDialer{PeersImpl: nopPeers}
 	fakeRouter := offroute.NewOfflineRouter(repo.NewInMemoryRepo().Datastore(), blankValidator{})
 
@@ -66,7 +66,7 @@ func TestBootstrapperStartAndStop(t *testing.T) {
 func TestBootstrapperBootstrap(t *testing.T) {
 	t.Run("Doesn't connect if already have enough peers", func(t *testing.T) {
 		assert := assert.New(t)
-		fakeHost := &fakeHost{ConnectImpl: panicConnect}
+		fakeHost := &FakeHost{ConnectImpl: panicConnect}
 		fakeDialer := &fakeDialer{PeersImpl: panicPeers}
 		fakeRouter := offroute.NewOfflineRouter(repo.NewInMemoryRepo().Datastore(), blankValidator{})
 		ctx := context.Background()
@@ -88,7 +88,7 @@ func TestBootstrapperBootstrap(t *testing.T) {
 
 	t.Run("Connects if don't have enough peers", func(t *testing.T) {
 		assert := assert.New(t)
-		fakeHost := &fakeHost{ConnectImpl: countingConnect}
+		fakeHost := &FakeHost{ConnectImpl: countingConnect}
 		lk.Lock()
 		connectCount = 0
 		lk.Unlock()
@@ -111,7 +111,7 @@ func TestBootstrapperBootstrap(t *testing.T) {
 
 	t.Run("Doesn't try to connect to an already connected peer", func(t *testing.T) {
 		assert := assert.New(t)
-		fakeHost := &fakeHost{ConnectImpl: countingConnect}
+		fakeHost := &FakeHost{ConnectImpl: countingConnect}
 		lk.Lock()
 		connectCount = 0
 		lk.Unlock()
